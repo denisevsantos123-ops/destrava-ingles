@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Destrava Inglês</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f6ff;
+      padding: 20px;
+    }
+    h1 {
+      color: #2a4d9b;
+    }
+    textarea, input, button {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-top: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🇺🇸 Destrava Inglês</h1>
+
+  <div class="card">
+    <label>Frase ou palavra em inglês:</label>
+    <input type="text" id="english">
+
+    <label>Tradução em português:</label>
+    <input type="text" id="portuguese">
+
+    <button onclick="savePhrase()">Salvar para estudar</button>
+  </div>
+
+  <div class="card">
+    <h3>📚 Minhas frases</h3>
+    <ul id="list"></ul>
+  </div>
+
+  <script>
+    const list = document.getElementById("list");
+
+    function savePhrase() {
+      const eng = document.getElementById("english").value;
+      const pt = document.getElementById("portuguese").value;
+
+      if (!eng || !pt) {
+        alert("Preencha os dois campos");
+        return;
+      }
+
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${eng}</strong> — ${pt}`;
+      list.appendChild(li);
+
+      document.getElementById("english").value = "";
+      document.getElementById("portuguese").value = "";
+    }
+  </script>
+
+</body>
+</html>
