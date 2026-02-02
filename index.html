@@ -77,7 +77,7 @@ function playSlow() {
 
 let recorder;
 let audioChunks = [];
-
+let lastAudioBlob = null;
 function startRecording() {
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
@@ -87,14 +87,14 @@ function startRecording() {
 
       recorder.ondataavailable = e => audioChunks.push(e.data);
 
-      recorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks);
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audio = document.createElement("audio");
-        audio.controls = true;
-        audio.src = audioUrl;
-        document.body.appendChild(audio);
-      };
+      
+        recorder.onstop = () => {
+  lastAudioBlob = new Blob(audioChunks);
+  alert("Áudio gravado com sucesso ✅");
+};
+        
+    
+    
 
       alert("Gravando por 5 segundos...");
       setTimeout(() => recorder.stop(), 20000);
@@ -104,6 +104,7 @@ function startRecording() {
     function savePhrase() {
       const eng = document.getElementById("english").value;
       const pt = document.getElementById("portuguese").value;
+      lastAudioBlob = null;
 
       if (!eng || !pt) {
         alert("Preencha os dois campos");
@@ -111,12 +112,34 @@ function startRecording() {
       }
 
       const li = document.createElement("li");
-      li.innerHTML = `<strong>${eng}</strong> — ${pt}`;
-      list.appendChild(li);
+
+li.innerHTML = `
+  <strong>${eng}</strong> - ${pt}
+  <br>
+  ${lastAudioBlob ? `<button onclick="playMyAudio()">▶️ Ouvir minha voz</button>` : ""}
+`;
+
+  
+  
+
+
+list.appendChild(li);
+
 
       document.getElementById("english").value = "";
       document.getElementById("portuguese").value = "";
-    }
+    } 
+
+    function playMyAudio() {
+  if (!lastAudioBlob) {
+    alert("Nenhum áudio gravado");
+    return;
+  }
+
+  const audioUrl = URL.createObjectURL(lastAudioBlob);
+  const audio = new Audio(audioUrl);
+  audio.play();
+}
   </script>
 
 </body>
