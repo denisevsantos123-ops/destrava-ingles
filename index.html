@@ -38,8 +38,11 @@
     <label>Tradução em português:</label>
     <input type="text" id="portuguese">
 
-    <button onclick="savePhrase()">Salvar para estudar</button>
-  </div>
+    <button onclick="playNormal()">🔊 Ouvir (normal)</button>
+<button onclick="playSlow()">🐢 Ouvir (devagar)</button>
+<button onclick="startRecording()">🎙️ Gravar minha voz</button>
+<button onclick="savePhrase()">💾 Salvar para estudar</button>
+
 
   <div class="card">
     <h3>📚 Minhas frases</h3>
@@ -48,7 +51,56 @@
 
   <script>
     const list = document.getElementById("list");
+function playNormal() {
+  const text = document.getElementById("english").value;
+  if (!text) {
+    alert("Digite uma frase em inglês primeiro");
+    return;
+  }
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "en-US";
+  msg.rate = 1;
+  speechSynthesis.speak(msg);
+}
 
+function playSlow() {
+  const text = document.getElementById("english").value;
+  if (!text) {
+    alert("Digite uma frase em inglês primeiro");
+    return;
+  }
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "en-US";
+  msg.rate = 0.7;
+  speechSynthesis.speak(msg);
+}
+
+let recorder;
+let audioChunks = [];
+
+function startRecording() {
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      recorder = new MediaRecorder(stream);
+      recorder.start();
+      audioChunks = [];
+
+      recorder.ondataavailable = e => audioChunks.push(e.data);
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks);
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = document.createElement("audio");
+        audio.controls = true;
+        audio.src = audioUrl;
+        document.body.appendChild(audio);
+      };
+
+      alert("Gravando por 5 segundos...");
+      setTimeout(() => recorder.stop(), 5000);
+    })
+    .catch(() => alert("Permissão de microfone negada"));
+          }
     function savePhrase() {
       const eng = document.getElementById("english").value;
       const pt = document.getElementById("portuguese").value;
