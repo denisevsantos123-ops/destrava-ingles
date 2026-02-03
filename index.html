@@ -104,7 +104,7 @@ function startRecording() {
     function savePhrase() {
       const eng = document.getElementById("english").value;
       const pt = document.getElementById("portuguese").value;
-      lastAudioBlob = null;
+      
 
       if (!eng || !pt) {
         alert("Preencha os dois campos");
@@ -113,18 +113,15 @@ function startRecording() {
 
       const li = document.createElement("li");
 
-li.innerHTML = `
-  <strong>${eng}</strong> - ${pt}
-  <br>
-  ${lastAudioBlob ? `<button onclick="playMyAudio()">▶️ Ouvir minha voz</button>` : ""}
+
+  li.innerHTML = `
+<strong>${eng}</strong> - ${pt}
+<br>
+<button onclick="playMyAudio()">▶️ Ouvir minha voz</button>
 `;
-
   
-  
-
 
 list.appendChild(li);
-
 
       document.getElementById("english").value = "";
       document.getElementById("portuguese").value = "";
