@@ -42,7 +42,7 @@
 <button onclick="playSlow()">🐢 Ouvir (devagar)</button>
 <button onclick="startRecording()">🎙️ Gravar minha voz</button>
 <button onclick="savePhrase()">💾 Salvar para estudar</button>
-
+<button onclick="stopRecording()">⏹ Parar gravação</button>
 
   <div class="card">
     <h3>📚 Minhas frases</h3>
@@ -75,9 +75,11 @@ function playSlow() {
   speechSynthesis.speak(msg);
 }
 
+
 let recorder;
 let audioChunks = [];
 let lastAudioBlob = null;
+
 function startRecording() {
   navigator.mediaDevices.getUserMedia({ audio: true })
     .then(stream => {
@@ -87,24 +89,28 @@ function startRecording() {
 
       recorder.ondataavailable = e => audioChunks.push(e.data);
 
-      
-        recorder.onstop = () => {
-  lastAudioBlob = new Blob(audioChunks);
-  alert("Áudio gravado com sucesso ✅");
-};
-        
-    
-    
-
-      alert("Gravando por 5 segundos...");
-      setTimeout(() => recorder.stop(), 20000);
+      recorder.onstop = () => {
+        lastAudioBlob = new Blob(audioChunks);
+        alert("Áudio gravado com sucesso ✅");
+      };
     })
     .catch(() => alert("Permissão de microfone negada"));
-          }
+}
+
+  function stopRecording() {
+  if (recorder && recorder.state === "recording") {
+    recorder.stop();
+  }
+  }
+     
     function savePhrase() {
       const eng = document.getElementById("english").value;
       const pt = document.getElementById("portuguese").value;
-      
+      const audio = lastAudioBlob; 
+      if (!audio) {
+    alert("Grave sua voz antes de salvar a frase");
+    return;
+      }
 
       if (!eng || !pt) {
         alert("Preencha os dois campos");
@@ -113,11 +119,11 @@ function startRecording() {
 
       const li = document.createElement("li");
 
-
+li.audio = audio;
   li.innerHTML = `
 <strong>${eng}</strong> - ${pt}
 <br>
-<button onclick="playMyAudio()">▶️ Ouvir minha voz</button>
+<button onclick="playMyAudio(this)">▶️ Ouvir minha voz</button>
 `;
   
 
@@ -127,16 +133,19 @@ list.appendChild(li);
       document.getElementById("portuguese").value = "";
     } 
 
-    function playMyAudio() {
-  if (!lastAudioBlob) {
-    alert("Nenhum áudio gravado");
+     
+  function playMyAudio(button) {
+  const li = button.parentElement;
+
+  if (!li.audio) {
+    alert("Esta frase não tem áudio gravado");
     return;
   }
 
-  const audioUrl = URL.createObjectURL(lastAudioBlob);
+  const audioUrl = URL.createObjectURL(li.audio);
   const audio = new Audio(audioUrl);
   audio.play();
-}
+  }
   </script>
 
 </body>
