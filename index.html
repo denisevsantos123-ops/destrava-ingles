@@ -51,6 +51,33 @@
 
   <script>
     const list = document.getElementById("list");
+    // ===== SALVAR E CARREGAR FRASES =====
+function salvarNoLocalStorage() {
+  const frases = [];
+  document.querySelectorAll("#list li").forEach(li => {
+    frases.push({
+      eng: li.dataset.eng,
+      pt: li.dataset.pt
+    });
+  });
+  localStorage.setItem("frases", JSON.stringify(frases));
+}
+
+function carregarDoLocalStorage() {
+  const frasesSalvas = JSON.parse(localStorage.getItem("frases")) || [];
+
+  frasesSalvas.forEach(frase => {
+    const li = document.createElement("li");
+    li.dataset.eng = frase.eng;
+    li.dataset.pt = frase.pt;
+
+    li.innerHTML = `
+      <strong>${frase.eng}</strong> - ${frase.pt}
+    `;
+
+    list.appendChild(li);
+  });
+}
 function playNormal() {
   const text = document.getElementById("english").value;
   if (!text) {
@@ -145,7 +172,8 @@ list.appendChild(li);
   const audioUrl = URL.createObjectURL(li.audio);
   const audio = new Audio(audioUrl);
   audio.play();
-  }
+  } 
+    carregarDoLocalStorage();
   </script>
 
 </body>
