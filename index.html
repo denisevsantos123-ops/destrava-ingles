@@ -118,11 +118,16 @@ function savePhrase() {
 
   const frases = JSON.parse(localStorage.getItem("frases")) || [];
 
-  frases.push({
-    eng,
-    pt,
-    audio: URL.createObjectURL(lastAudioBlob)
-  });
+  const hoje = new Date().toISOString().split("T")[0];
+const id = Date.now();
+frases.push({
+  id,
+  eng,
+  pt,
+  audio: URL.createObjectURL(lastAudioBlob),
+  nivel: 0,
+  proxima: hoje
+});
 
   localStorage.setItem("frases", JSON.stringify(frases));
 
@@ -158,21 +163,42 @@ function modoRevisao() {
   list.innerHTML = "";
   const frases = JSON.parse(localStorage.getItem("frases")) || [];
 
-  if (frases.length === 0) {
-    alert("Nenhuma frase salva ainda");
+  const hoje = new Date().toISOString().split("T")[0];
+  const paraRevisar = frases.filter(f => f.proxima <= hoje);
+
+  if (paraRevisar.length === 0) {
+    alert("Nenhuma frase para revisar hoje 🎉");
     return;
   }
 
-  frases.sort(() => Math.random() - 0.5);
-
-  frases.forEach(frase => {
+  paraRevisar.forEach((frase, index) => {
     const li = document.createElement("li");
+
     li.innerHTML = `
       <strong>${frase.eng}</strong><br>
-      <button onclick="playNormalFromText('${frase.eng}')">🔊 Ouvir</button>
+
+      <button onclick="playNormalFromText('${frase.eng}')">🔊 Ouvir</button><br><br>
+
+      <button onclick="avaliar(${index}, 3)">😌 Fácil</button>
+      <button onclick="avaliar(${index}, 1)">😐 Médio</button>
+      <button onclick="avaliar(${index}, 0)">😣 Difícil</button>
     `;
+
     list.appendChild(li);
   });
+}
+function avaliar(index, dias) {
+  const frases = JSON.parse(localStorage.getItem("frases")) || [];
+
+  const hoje = new Date();
+  hoje.setDate(hoje.getDate() + dias);
+
+  frases[index].proxima = hoje.toISOString().split("T")[0];
+  frases[index].nivel += 1;
+
+  localStorage.setItem("frases", JSON.stringify(frases));
+
+  modoRevisao();
 }
 
 function playNormalFromText(text) {
