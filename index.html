@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+
+      <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Destrava Inglês</title>
   <style>
     body {
@@ -12,78 +13,60 @@
     h1 {
       color: #2a4d9b;
     }
-    textarea, input, button {
+    input, button {
       width: 100%;
-      margin-top: 10px;
       padding: 10px;
+      margin-top: 8px;
       font-size: 16px;
     }
     .card {
-      background: white;
+      background: #fff;
       padding: 15px;
       border-radius: 10px;
       margin-top: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin-bottom: 15px;
     }
   </style>
 </head>
+
 <body>
 
-  <h1>🇺🇸 Destrava Inglês</h1>
+<h1>🇺🇸 Destrava Inglês</h1>
 
-  <div class="card">
-    <label>Frase ou palavra em inglês:</label>
-    <input type="text" id="english">
+<div class="card">
+  <label>Frase ou palavra em inglês:</label>
+  <input type="text" id="english">
 
-    <label>Tradução em português:</label>
-    <input type="text" id="portuguese">
+  <label>Tradução em português:</label>
+  <input type="text" id="portuguese">
 
-    <button onclick="playNormal()">🔊 Ouvir (normal)</button>
-<button onclick="playSlow()">🐢 Ouvir (devagar)</button>
-<button onclick="startRecording()">🎙️ Gravar minha voz</button>
-<button onclick="savePhrase()">💾 Salvar para estudar</button>
-<button onclick="stopRecording()">⏹ Parar gravação</button>
+  <button onclick="playNormal()">🔊 Ouvir (normal)</button>
+  <button onclick="playSlow()">🐢 Ouvir (devagar)</button>
+  <button onclick="startRecording()">🎤 Gravar minha voz</button>
+  <button onclick="stopRecording()">⏹️ Parar gravação</button>
+  <button onclick="savePhrase()">💾 Salvar para estudar</button>
+  <button onclick="modoRevisao()">📚 Revisar frases</button>
+</div>
 
-  <div class="card">
-    <h3>📚 Minhas frases</h3>
-    <ul id="list"></ul>
-  </div>
+<div class="card">
+  <h3>📘 Minhas frases</h3>
+  <ul id="list"></ul>
+</div>
 
-  <script>
-    const list = document.getElementById("list");
-    // ===== SALVAR E CARREGAR FRASES =====
-function salvarNoLocalStorage() {
-  const frases = [];
-  document.querySelectorAll("#list li").forEach(li => {
-    frases.push({
-      eng: li.dataset.eng,
-      pt: li.dataset.pt
-    });
-  });
-  localStorage.setItem("frases", JSON.stringify(frases));
-}
+<script>
+const list = document.getElementById("list");
 
-function carregarDoLocalStorage() {
-  const frasesSalvas = JSON.parse(localStorage.getItem("frases")) || [];
-
-  frasesSalvas.forEach(frase => {
-    const li = document.createElement("li");
-    li.dataset.eng = frase.eng;
-    li.dataset.pt = frase.pt;
-
-    li.innerHTML = `
-      <strong>${frase.eng}</strong> - ${frase.pt}
-    `;
-
-    list.appendChild(li);
-  });
-}
+// ====== VOZ DO SISTEMA ======
 function playNormal() {
-  const text = document.getElementById("english").value;
-  if (!text) {
-    alert("Digite uma frase em inglês primeiro");
-    return;
-  }
+  const text = english.value;
+  if (!text) return alert("Digite a frase em inglês");
   const msg = new SpeechSynthesisUtterance(text);
   msg.lang = "en-US";
   msg.rate = 1;
@@ -91,18 +74,15 @@ function playNormal() {
 }
 
 function playSlow() {
-  const text = document.getElementById("english").value;
-  if (!text) {
-    alert("Digite uma frase em inglês primeiro");
-    return;
-  }
+  const text = english.value;
+  if (!text) return alert("Digite a frase em inglês");
   const msg = new SpeechSynthesisUtterance(text);
   msg.lang = "en-US";
   msg.rate = 0.7;
   speechSynthesis.speak(msg);
 }
 
-
+// ====== GRAVAÇÃO ======
 let recorder;
 let audioChunks = [];
 let lastAudioBlob = null;
@@ -113,68 +93,99 @@ function startRecording() {
       recorder = new MediaRecorder(stream);
       recorder.start();
       audioChunks = [];
-
       recorder.ondataavailable = e => audioChunks.push(e.data);
-
       recorder.onstop = () => {
         lastAudioBlob = new Blob(audioChunks);
-        alert("Áudio gravado com sucesso ✅");
+        alert("Áudio gravado ✅");
       };
     })
-    .catch(() => alert("Permissão de microfone negada"));
+    .catch(() => alert("Permissão do microfone negada"));
 }
 
-  function stopRecording() {
+function stopRecording() {
   if (recorder && recorder.state === "recording") {
     recorder.stop();
   }
-  }
-     
-    function savePhrase() {
-      const eng = document.getElementById("english").value;
-      const pt = document.getElementById("portuguese").value;
-      const audio = lastAudioBlob; 
-      if (!audio) {
-    alert("Grave sua voz antes de salvar a frase");
-    return;
-      }
+}
 
-      if (!eng || !pt) {
-        alert("Preencha os dois campos");
-        return;
-      }
+// ====== SALVAR FRASE ======
+function savePhrase() {
+  const eng = english.value;
+  const pt = portuguese.value;
 
-      const li = document.createElement("li");
+  if (!eng || !pt) return alert("Preencha os dois campos");
+  if (!lastAudioBlob) return alert("Grave sua voz antes de salvar");
 
-li.audio = audio;
-  li.innerHTML = `
-<strong>${eng}</strong> - ${pt}
-<br>
-<button onclick="playMyAudio(this)">▶️ Ouvir minha voz</button>
-`;
-  
+  const frases = JSON.parse(localStorage.getItem("frases")) || [];
 
-list.appendChild(li);
+  frases.push({
+    eng,
+    pt,
+    audio: URL.createObjectURL(lastAudioBlob)
+  });
 
-      document.getElementById("english").value = "";
-      document.getElementById("portuguese").value = "";
-    } 
+  localStorage.setItem("frases", JSON.stringify(frases));
 
-     
-  function playMyAudio(button) {
-  const li = button.parentElement;
+  english.value = "";
+  portuguese.value = "";
+  lastAudioBlob = null;
 
-  if (!li.audio) {
-    alert("Esta frase não tem áudio gravado");
-    return;
-  }
+  carregarLista();
+}
 
-  const audioUrl = URL.createObjectURL(li.audio);
-  const audio = new Audio(audioUrl);
+// ====== LISTA NORMAL ======
+function carregarLista() {
+  list.innerHTML = "";
+  const frases = JSON.parse(localStorage.getItem("frases")) || [];
+
+  frases.forEach(frase => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${frase.eng}</strong> - ${frase.pt}<br>
+      <button onclick="playAudio('${frase.audio}')">▶️ Ouvir minha voz</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function playAudio(src) {
+  const audio = new Audio(src);
   audio.play();
-  } 
-    carregarDoLocalStorage();
-  </script>
+}
+
+// ====== MODO REVISÃO ======
+function modoRevisao() {
+  list.innerHTML = "";
+  const frases = JSON.parse(localStorage.getItem("frases")) || [];
+
+  if (frases.length === 0) {
+    alert("Nenhuma frase salva ainda");
+    return;
+  }
+
+  frases.sort(() => Math.random() - 0.5);
+
+  frases.forEach(frase => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${frase.eng}</strong><br>
+      <button onclick="playNormalFromText('${frase.eng}')">🔊 Ouvir</button>
+    `;
+    list.appendChild(li);
+  });
+}
+
+function playNormalFromText(text) {
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "en-US";
+  msg.rate = 1;
+  speechSynthesis.speak(msg);
+}
+
+// carregar ao abrir
+carregarLista();
+</script>
 
 </body>
 </html>
+  
